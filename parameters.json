@@ -1,0 +1,13 @@
+{
+    "database": {
+      "host": "localhost",
+      "user": "root",
+      "password":"prueba123",
+      "database": "testament_manager"
+    },
+    "mailLogin": {
+      "user": "root",
+      "password":"prueba123"
+    }
+  }
+  
