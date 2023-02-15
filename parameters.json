@@ -1,6 +1,6 @@
 {
     "database": {
-      "host": "localhost",
+      "host": "35.246.128.184",
       "user": "root",
       "password":"prueba123",
       "database": "testament_manager"
