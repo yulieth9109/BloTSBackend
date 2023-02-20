@@ -19,7 +19,7 @@ class mainController:
             if check_password_hash(user.password, str(bodyData['Password'])) :
                 login_user(user, remember=True)
                 json_data = []
-                content = {"Id": str(user.id), "FirstName": str(user.firstName), "LastName": str(user.lastName), "email" : user.email, "Role" : str(user.role)}
+                content = {"Id": str(user.tid), "FirstName": str(user.firstName), "LastName": str(user.lastName), "email" : user.email, "Role" : str(user.role)}
                 json_data.append(content)
                 return jsonify(json_data)
             else:

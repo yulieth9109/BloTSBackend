@@ -34,12 +34,14 @@ class dbManager:
     def getUserInfo(email) :
         qry = "SELECT `FirstName`,`LastName`,`Email`, `Password`, `Role`, `idNumber` FROM `testament_manager`.`user` WHERE email='" + email.lower() + "' AND Status = 'ACTIVE'"
         result = ConexionDB.executeQry(qry,"QRY")
+        print("Email " + str(email))
         if result:
             print("Users " + str(result))
             user = User(result[0][5], result[0][2], result[0][0], result[0][1], result[0][3], result[0][4])
+            print(user.email)
             return user
         else:
-            return ""
+            return None
 
     @staticmethod
     def checkUserE(email, id_number) :
