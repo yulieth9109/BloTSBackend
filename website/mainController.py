@@ -1,11 +1,12 @@
 from flask import request, jsonify, Response, url_for, render_template, send_from_directory, json
-import os, tempfile, base64
+import os, tempfile, base64, requests, json, hashlib
 from os.path import join, dirname, realpath
 from .dbManager import dbManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_login import login_user
 from .utilities import generate_confirmation_token, confirm_token, send_email
+import website.parameters as parameters
 
 UPLOADS_PATH = join(dirname(realpath(__file__)), 'upload')
 
@@ -17,7 +18,7 @@ class mainController:
         user = dbManager.getUserInfo(bodyData['Username'])
         if user:
             if check_password_hash(user.password, str(bodyData['Password'])) :
-                login_user(user, remember=True)
+                login_user(user)
                 json_data = []
                 content = {"Id": str(user.tid), "FirstName": str(user.firstName), "LastName": str(user.lastName), "email" : user.email, "Role" : str(user.role)}
                 json_data.append(content)
@@ -128,8 +129,8 @@ class mainController:
         
                     #upload testament in the server
 
-                    tf = "temporal/" + str(tempfile.NamedTemporaryFile()) + ".pdf"
-                    testament.save(os.path.join(UPLOADS_PATH, tf)) 
+                    tf = str(next(tempfile._get_candidate_names())) + ".pdf"
+                    testament.save(os.path.join(UPLOADS_PATH, "temporal", tf)) 
         
                     #Validate the existence of metadataTestament
 
@@ -137,9 +138,33 @@ class mainController:
                     if metadataTestament:
                         hashT = metadataTestament[0][1]
 
-                    #Create block information - Pendent definition of the information to keep in the blockchain
+                    #Convert the document in Base64 - create file in IFPS Infura
+                    file = open(os.path.join(UPLOADS_PATH, "temporal", tf), 'rb')
+                    file_read = file.read()
+                    testamentD = base64.encodebytes(file_read)
+                    sTestamentD = testamentD.decode('utf-8')
+
+                    txtTextament = str(next(tempfile._get_candidate_names())) + ".txt"
+                    f = open(os.path.join(UPLOADS_PATH, "temporal", txtTextament), "w+")
+                    f.write(sTestamentD[51:])
+                    f.close()
+
+                    endpoint = parameters.infuraEn
+                    files = {'file': os.path.join(UPLOADS_PATH, "temporal", txtTextament),}
+                    response = requests.post(endpoint + '/api/v0/add', files = files, auth=(parameters.infuraP, parameters.infuraPS))
+                    p = response.json()
+                    hashI = p['Hash']
+                    print(hashI)
+
+                    #blockinformation: First 50 charactects of the base64 string + hash256 of the testament + '.' + infurahash + '.' previus hash
+                    sha256hash = hashlib.sha256(file_read).hexdigest()
+                    msg = str(sTestamentD[0:50]  + '*.*' + str(sha256hash) + '*.*' + str(hashI) + '*.*' + str(hashT))
+                    print("This is the block information " + str(msg))
 
                     new_hash = generate_password_hash("testing", method='sha1')
+
+                    os.remove(os.path.join(UPLOADS_PATH, "temporal", tf))
+                    os.remove(os.path.join(UPLOADS_PATH, "temporal", txtTextament))
 
                     if executorStatus == "PENDENT" or executorStatus == "" :
                         final_status = "EXECUTOR NOT CONFIRMED"
@@ -148,12 +173,12 @@ class mainController:
      
                     if hashT == "" :
                         #create medataTestament
-                        creationT =  dbManager.createMetadataT(id_testator, id_number_E, new_hash, final_status)
+                        creationT =  dbManager.createMetadataT(id_testator, id_number_E, new_hash, hashI, final_status)
                         if creationT != "OK" :
                             return Response("ERR: Error in DB at the creation of testament data, intent later", status=500)
                     else :
                         #Update metadataTestament
-                        updateT =  dbManager.updateMetadataT(id_testator, id_number_E, new_hash, final_status)
+                        updateT =  dbManager.updateMetadataT(id_testator, id_number_E, new_hash, hashI, final_status)
                         if updateT != "OK" :
                             return Response("ERR: Error in DB at the update of testament data, intent later", status=500)
                     
@@ -222,7 +247,7 @@ class mainController:
         fp = next(tempfile._get_candidate_names()) + '.' + extension[len(extension) - 1]
         pathDeathCertificate = fp
 
-        if idExecutorP != '' and certificateOfDeath != '' and idExecutorP != certificateOfDeath:
+        if idExecutorP.filename!= '' and certificateOfDeath.filename != '' and idExecutorP.filename != certificateOfDeath.filename:
             createRequest = dbManager.createRequest(pathIdExecutorP, pathDeathCertificate)
             if createRequest == "OK" :
                 idExecutorP.save(os.path.join(UPLOADS_PATH,"Request", pathIdExecutorP)) 
@@ -258,7 +283,7 @@ class mainController:
             file_read = file.read()
             DeathCertificate = base64.encodebytes(file_read)
             json_data = []
-            content = {"IdRequest": requestData[0][0], "IdExecutorP": str(IdExecutorP), "DeathCertificate": str(DeathCertificate), "DateCreation" : requestData[0][4]}
+            content = {"IdRequest": requestData[0][0], "IdExecutorN": requestData[0][1],"IdExecutorP": str(IdExecutorP), "DeathCertificateN": requestData[0][2], "DeathCertificate": str(DeathCertificate), "DateCreation" : requestData[0][4]}
             json_data.append(content)
             return jsonify(json_data)
         else :
@@ -354,5 +379,17 @@ class mainController:
             return send_from_directory ( (os.path.join(UPLOADS_PATH, "temporal")) , "Testing Testament.pdf", as_attachment=False, etag = "NextHash=")
         except:
             return Response("The confirmation link is invalid or has expired.", status = 400)
+
+    @staticmethod
+    def getTestamentHash(request):
+        bodyData = request.json
+        requestData = dbManager.getTestamentHash(bodyData['IdTestator'])
+        if requestData:
+            json_data = []
+            content = {"Hash": requestData[0][0]}
+            json_data.append(content)
+            return jsonify(json_data)
+        else :
+            return Response("The user does not have wills", status = 400)
 
         

@@ -1,13 +1,18 @@
 {
     "database": {
-      "host": "35.246.128.184",
+      "host": "localhost",
       "user": "root",
       "password":"prueba123",
       "database": "testament_manager"
     },
     "mailLogin": {
-      "user": "root",
-      "password":"prueba123"
+      "user": "blots.contact@gmail.com",
+      "password":"shjnkmhgijiidcaf"
+    },
+    "infura" :{
+      "projectId": "2M0D8qxDm7Dyt8XMGb7zivpl1Gf",
+      "projectSecret": "013b57bdacb41068c7ebd687239f9047",
+      "endpoint": "https://ipfs.infura.io:5001"
     }
   }
   

@@ -83,16 +83,16 @@ class dbManager:
         return result
     
     @staticmethod
-    def createMetadataT(id_testator, id_executor, new_hash, status) :
+    def createMetadataT(id_testator, id_executor, new_hash, hashI, status) :
         date_creation = str(datetime.datetime.now())
-        qry = "INSERT INTO `testament_manager`.`metadataTestament` (`IdTestator`, `IdExecutor`,`Hash`,`Status`, `DateCreation`) VALUES('" + id_testator + "', '" + id_executor + "','" + new_hash + "' ,'" +  status + "', '" + date_creation + "' )"
+        qry = "INSERT INTO `testament_manager`.`metadataTestament` (`IdTestator`, `IdExecutor`, `Hash`, `Infura`, `Status`, `DateCreation`) VALUES('" + id_testator + "', '" + id_executor + "','" + new_hash + "' ,'" + hashI + "','" +  status + "', '" + date_creation + "' )"
         result = ConexionDB.executeQry(qry,"INSERT")
         return result
     
     @staticmethod
-    def updateMetadataT(id_testator, id_executor, new_hash, status) :
+    def updateMetadataT(id_testator, id_executor, new_hash, hashI, status) :
         date_last_updated = str(datetime.datetime.now())
-        qry = "UPDATE `testament_manager`.`metadataTestament` SET IdExecutor = '" + id_executor + "', Hash = '" + new_hash + "', Status = '" + status +"', DateLastModification = '" + date_last_updated + "' WHERE IdTestator='" + id_testator + "'"
+        qry = "UPDATE `testament_manager`.`metadataTestament` SET IdExecutor = '" + id_executor + "', Hash = '" + new_hash + "', Infura = '" + hashI + "', Status = '" + status +"', DateLastModification = '" + date_last_updated + "' WHERE IdTestator='" + id_testator + "'"
         result = ConexionDB.executeQry(qry,"INSERT")
         return result
     
@@ -170,6 +170,13 @@ class dbManager:
         qry = "UPDATE `testament_manager`.`request` SET Status = '" + Status + "', DateLastModification = '" + date_last_updated + "' WHERE IdTestament = '" + IdTestament + "' AND Status = 'DOCUMENTS VALIDATED - APPROVED'"
         result = ConexionDB.executeQry(qry,"INSERT")
         return result
+
+    @staticmethod
+    def getTestamentHash(IdTestator):
+        qry = "SELECT Hash FROM `testament_manager`.`metadataTestament` WHERE IdTestator = '" + IdTestator + "'"
+        result = ConexionDB.executeQry(qry,"QRY")
+        return result
+        
 
         
 

@@ -1,116 +1,12 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
 
-function deleteFunction() {
-  var urlD = document.getElementById("urlDelete").value;
-  console.log(urlD);
-
-  // Instantiating easyHTTP
-var http = new easyHTTP;
-
-http.delete(
-    'https://www.tu-chemnitz.de/informatik/DVS/blocklist/' + urlD,
-    function (err, response) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(response);
-        }
-    });
-
-  alert("DELETE");
-}
-
-function putFunction() {
-  var urlP = document.getElementById("urlPut").value;
-  console.log(urlP);
-  // Instantiating easyHTTP
-  var http = new easyHTTP;
-
-http.put(
-    'https://www.tu-chemnitz.de/informatik/DVS/blocklist/' + urlP,
-    function (err, response) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(response);
-        }
-    });
-
-  alert("PUT");
-}
-
-function easyHTTP() {
-
-  // Initialising new XMLHttpRequest method.
-  this.http = new XMLHttpRequest();
-}
-
-easyHTTP.prototype.delete = function (url, callback) {
- 
- // Open an object (GET/POST, PATH,
- // ASYNC-TRUE/FALSE)
- this.http.open('DELETE', url, true);
-
- // Assigning this to self to have 
- // scope of this into the function
- let self = this;
-
- this.http.setRequestHeader('Cookie','_shibsession_7777772e74752d6368656d6e69747a2e64655f61707068747470733a2f2f7777772e74752d6368656d6e69747a2e64652f73686962626f6c657468=_87c7a657697354c9a75f1f1ce0febc56')
-
- // When the response is ready
- this.http.onload = function () {
-
-     // Checking status
-     if (self.http.status === 200) {
-
-         // Callback function(Error, response text)
-         callback(null, 'Post Deleted');
-     } else {
-
-         // Callback function (Error message)
-         callback('Error: ' + self.http.status);
-     }
- }
-
- // Send the request
- this.http.send();
-}
-
-easyHTTP.prototype.put = function (url, callback) {
- 
- // Open an object (GET/POST, PATH,
- // ASYNC-TRUE/FALSE)
- this.http.open('PUT', url, true);
-
- // Assigning this to self to have 
- // scope of this into the function
- let self = this;
-
- this.http.setRequestHeader('Cookie','_shibsession_7777772e74752d6368656d6e69747a2e64655f61707068747470733a2f2f7777772e74752d6368656d6e69747a2e64652f73686962626f6c657468=_87c7a657697354c9a75f1f1ce0febc56')
+<head>
+    <title>User Login</title>
+</head>
 
 
- // When the response is ready
- this.http.onload = function () {
-
-     // Checking status
-     if (self.http.status === 200) {
-
-         // Callback function(Error, response text)
-         callback(null, 'Post Put');
-     } else {
-
-         // Callback function (Error message)
-         callback('Error: ' + self.http.status);
-     }
- }
-
- // Send the request
- this.http.send();
-}
-
-
-
-</script>
+<body> 
 <H4>SINGUP</H4>
 <form action="http://127.0.0.1:5000/sign-up" method="post" enctype="multipart/form-data">
     <p>IdNumber<input type="text" name="IdNumber">
@@ -148,3 +44,147 @@ easyHTTP.prototype.put = function (url, callback) {
     <p>Certificated of Death<input type="file" name="CertificatedDeath">
     <p><button type="submit">Submit</button>
 </form>
+
+<form name="Logout" method="GET">
+    <p>Clic to Logout</p>
+    <input type="text" name="text">
+    <p><button type="submit">Logout</button>
+</form>
+
+<script>
+
+    function deleteFunction() {
+      var urlD = document.getElementById("urlDelete").value;
+      console.log(urlD);
+    
+      // Instantiating easyHTTP
+    var http = new easyHTTP;
+    
+    http.delete(
+        'https://www.tu-chemnitz.de/informatik/DVS/blocklist/' + urlD,
+        function (err, response) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(response);
+            }
+        });
+    
+      alert("DELETE");
+    }
+    
+    function putFunction() {
+      var urlP = document.getElementById("urlPut").value;
+      console.log(urlP);
+      // Instantiating easyHTTP
+      var http = new easyHTTP;
+    
+    http.put(
+        'https://www.tu-chemnitz.de/informatik/DVS/blocklist/' + urlP,
+        function (err, response) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(response);
+            }
+        });
+    
+      alert("PUT");
+    }
+    
+    function easyHTTP() {
+    
+      // Initialising new XMLHttpRequest method.
+      this.http = new XMLHttpRequest();
+    }
+    
+    easyHTTP.prototype.delete = function (url, callback) {
+     
+     // Open an object (GET/POST, PATH,
+     // ASYNC-TRUE/FALSE)
+     this.http.open('DELETE', url, true);
+    
+     // Assigning this to self to have 
+     // scope of this into the function
+     let self = this;
+    
+     this.http.setRequestHeader('Cookie','_shibsession_7777772e74752d6368656d6e69747a2e64655f61707068747470733a2f2f7777772e74752d6368656d6e69747a2e64652f73686962626f6c657468=_87c7a657697354c9a75f1f1ce0febc56')
+    
+     // When the response is ready
+     this.http.onload = function () {
+    
+         // Checking status
+         if (self.http.status === 200) {
+    
+             // Callback function(Error, response text)
+             callback(null, 'Post Deleted');
+         } else {
+    
+             // Callback function (Error message)
+             callback('Error: ' + self.http.status);
+         }
+     }
+    
+     // Send the request
+     this.http.send();
+    }
+    
+    easyHTTP.prototype.put = function (url, callback) {
+     
+     // Open an object (GET/POST, PATH,
+     // ASYNC-TRUE/FALSE)
+     this.http.open('PUT', url, true);
+    
+     // Assigning this to self to have 
+     // scope of this into the function
+     let self = this;
+    
+     this.http.setRequestHeader('Cookie','_shibsession_7777772e74752d6368656d6e69747a2e64655f61707068747470733a2f2f7777772e74752d6368656d6e69747a2e64652f73686962626f6c657468=_87c7a657697354c9a75f1f1ce0febc56')
+    
+    
+     // When the response is ready
+     this.http.onload = function () {
+    
+         // Checking status
+         if (self.http.status === 200) {
+    
+             // Callback function(Error, response text)
+             callback(null, 'Post Put');
+         } else {
+    
+             // Callback function (Error message)
+             callback('Error: ' + self.http.status);
+         }
+     }
+    
+     // Send the request
+     this.http.send();
+    }
+    
+    const form = document.forms.namedItem("Logout");
+                form.addEventListener(
+                "submit",
+                (event) => {
+                    
+                    const request = new XMLHttpRequest();
+                    request.open("GET", "https://pristine-dahlia-377509.ey.r.appspot.com/logout", true);
+                    request.withCredentials=true;
+                    request.onreadystatechange = () => {
+                         if (request.readyState == 4 && request.status === 200) {
+                            alert("Success");
+                            console.log(request.response)
+                      }
+                   };
+
+                
+                request.send();
+                    event.preventDefault();
+                },
+                false
+                );
+    
+    </script>
+
+</body>
+
+</html>
