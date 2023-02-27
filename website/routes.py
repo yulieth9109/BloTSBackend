@@ -35,12 +35,12 @@ def confirm_email_executor(token):
 def updateTestament():
     return mainControllerC.updateTestament(request)
 
-@routes.route('/getTestamentHash', methods=['GET'])
-#@login_required
+@routes.route('/getTestamentHash', methods=['POST'])
+@login_required
 def getTestamentHash():
     return mainControllerC.getTestamentHash(request)
 
-@routes.route('/getTestament', methods=['GET'])
+@routes.route('/getTestament', methods=['POST'])
 @login_required
 def getTestament():
     return mainControllerC.getBlockchainTestament(request)
@@ -54,7 +54,7 @@ def requestRelease():
 def getListRequest():
     return mainControllerC.getListRequest()
 
-@routes.route('/getRequestInfo', methods=['GET'])
+@routes.route('/getRequestInfo', methods=['POST'])
 @login_required
 def getRequestInfo():
     return mainControllerC.getRequestInfo(request)
@@ -71,8 +71,6 @@ def confirm_release(token):
 @routes.route('/getTestamentLink/<token>')
 def getTestamentLink(token):
     return mainControllerC.getBlockchainTestamentL(token)
-
-
 
 
 

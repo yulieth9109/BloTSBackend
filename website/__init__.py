@@ -5,7 +5,6 @@ from .dbManager import dbManager
 from flask_cors import CORS
 import website.parameters as parameters
 
-
 dbManagerC = dbManager()
 CORS_ALLOW_ORIGIN="*,*"
 CORS_EXPOSE_HEADERS="*,*"

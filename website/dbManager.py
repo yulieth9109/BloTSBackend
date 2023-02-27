@@ -34,11 +34,8 @@ class dbManager:
     def getUserInfo(email) :
         qry = "SELECT `FirstName`,`LastName`,`Email`, `Password`, `Role`, `idNumber` FROM `testament_manager`.`user` WHERE email='" + email.lower() + "' AND Status = 'ACTIVE'"
         result = ConexionDB.executeQry(qry,"QRY")
-        print("Email " + str(email))
         if result:
-            print("Users " + str(result))
             user = User(result[0][5], result[0][2], result[0][0], result[0][1], result[0][3], result[0][4])
-            print(user.email)
             return user
         else:
             return None
@@ -52,7 +49,7 @@ class dbManager:
     @staticmethod
     def createUser(id_number, email, password, first_name, last_name, date_of_birth, countryP, place_of_birth, phone_number, postal_address, id_image) :
         date_creation = str(datetime.datetime.now())
-        qry = "INSERT INTO `testament_manager`.`user` (`idNumber`, `FirstName`,`LastName`,`Email`,`Password`,`Role`, `Status`, `DateBirth`, `PlaceBirth`, `CountryCodeP`, `PhoneNumber`, `IdImage`,`PostalAddress`, `DateCreation`) VALUES('" + id_number + "', '" + first_name + "','" + last_name + "','" + email.lower() + "','" + password + "', 'USER  ', 'PENDENT', '" + date_of_birth + "' , '" + place_of_birth + "' , '" + countryP + "' , '" + phone_number + "' , '" + id_image + "' , '" + postal_address + "' , '" + date_creation + "' )"
+        qry = "INSERT INTO `testament_manager`.`user` (`idNumber`, `FirstName`,`LastName`,`Email`,`Password`,`Role`, `Status`, `DateBirth`, `PlaceBirth`, `CountryCodeP`, `PhoneNumber`, `IdImage`,`PostalAddress`, `DateCreation`) VALUES('" + id_number + "', '" + first_name + "','" + last_name + "','" + email.lower() + "','" + password + "', 'USER', 'PENDENT', '" + date_of_birth + "' , '" + place_of_birth + "' , '" + countryP + "' , '" + phone_number + "' , '" + id_image + "' , '" + postal_address + "' , '" + date_creation + "' )"
         result = ConexionDB.executeQry(qry,"INSERT")
         return result
     
@@ -85,7 +82,7 @@ class dbManager:
     @staticmethod
     def createMetadataT(id_testator, id_executor, new_hash, hashI, status) :
         date_creation = str(datetime.datetime.now())
-        qry = "INSERT INTO `testament_manager`.`metadataTestament` (`IdTestator`, `IdExecutor`, `Hash`, `Infura`, `Status`, `DateCreation`) VALUES('" + id_testator + "', '" + id_executor + "','" + new_hash + "' ,'" + hashI + "','" +  status + "', '" + date_creation + "' )"
+        qry = "INSERT INTO `testament_manager`.`metadataTestament` (`IdTestator`, `IdExecutor`, `Hash`, `Infura`, `Status`, `DateCreation`) VALUES('" + id_testator + "', '" + id_executor + "','" + new_hash + "','" + hashI + "','" +  status + "', '" + date_creation + "' )"
         result = ConexionDB.executeQry(qry,"INSERT")
         return result
     
@@ -176,17 +173,3 @@ class dbManager:
         qry = "SELECT Hash FROM `testament_manager`.`metadataTestament` WHERE IdTestator = '" + IdTestator + "'"
         result = ConexionDB.executeQry(qry,"QRY")
         return result
-        
-
-        
-
-
-        
-
-    
-    
-
-
-
-
-    

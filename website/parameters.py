@@ -16,5 +16,11 @@ with open('parameters.json') as json_file:
     infuraP = infura['projectId']
     infuraPS = infura['projectSecret']
     infuraEn = infura['endpoint']
+    blockchain = data['Blockchain']
+    urlB = blockchain['urlB']
+    contractA = blockchain['contractAddress']
+    wallerA = blockchain['walletAddress']
+    walletK = blockchain['walletKey']
+    chainId = blockchain['chainID']
 
     
