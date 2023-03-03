@@ -22,5 +22,3 @@ with open('parameters.json') as json_file:
     wallerA = blockchain['walletAddress']
     walletK = blockchain['walletKey']
     chainId = blockchain['chainID']
-
-    

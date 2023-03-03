@@ -42,5 +42,3 @@ def create_app():
         return dbManagerC.getUserInfo(email)
 
     return app
-
-

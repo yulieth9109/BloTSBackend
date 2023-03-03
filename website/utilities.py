@@ -59,7 +59,7 @@ async def sending(msg):
 def sendTransactionBl(data):
     try :
         if w3.isConnected():
-            transaction = counter.functions.update(data).buildTransaction({'chainId': int(parameters.chainId), 'gas':120000, 'nonce': w3.eth.getTransactionCount(parameters.wallerA)})
+            transaction = counter.functions.update(data).buildTransaction({'chainId': int(parameters.chainId), 'gas':500000, 'nonce': w3.eth.getTransactionCount(parameters.wallerA)})
             signed_txn = w3.eth.account.signTransaction(transaction, parameters.walletK)
             txn_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
             return txn_hash
@@ -67,6 +67,7 @@ def sendTransactionBl(data):
             #app.logger.critical("ERR Blockchain Payload " + str(data))
             return "ERR: Connection to Blockchain not possible."
     except ValueError as e:
+        print(e)
         return "ERR: Error executing transaction in the blockchain."
 
 def getTransactionBl(txnHash):
@@ -81,9 +82,3 @@ def getTransactionBl(txnHash):
         return "ERR: Testament information not found it in the system."
     except:
         return "ERR: Error in the connection to the Blockchain, try later."
-
-
-
-
-
-

@@ -32,10 +32,10 @@ class dbManager:
 
     @staticmethod
     def getUserInfo(email) :
-        qry = "SELECT `FirstName`,`LastName`,`Email`, `Password`, `Role`, `idNumber` FROM `testament_manager`.`user` WHERE email='" + email.lower() + "' AND Status = 'ACTIVE'"
+        qry = "SELECT `FirstName`,`LastName`,`Email`, `Password`, `Role`, `idNumber`, `DateBirth`, `PlaceBirth`, `CountryCodeP`, `PhoneNumber`, `PostalAddress` FROM `testament_manager`.`user` WHERE email='" + email.lower() + "' AND Status = 'ACTIVE'"
         result = ConexionDB.executeQry(qry,"QRY")
         if result:
-            user = User(result[0][5], result[0][2], result[0][0], result[0][1], result[0][3], result[0][4])
+            user = User(result[0][5], result[0][2], result[0][0], result[0][1], result[0][3], result[0][4],result[0][6], result[0][7], result[0][8], result[0][9], result[0][10])
             return user
         else:
             return None

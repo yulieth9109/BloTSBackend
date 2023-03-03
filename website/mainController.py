@@ -1,5 +1,5 @@
 from flask import request, jsonify, Response, url_for, render_template, send_from_directory, json
-import os, tempfile, base64, requests, json, hashlib
+import os, tempfile, base64, requests, json, hashlib, binascii
 from os.path import join, dirname, realpath
 from .dbManager import dbManager
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,7 +22,7 @@ class mainController:
             if check_password_hash(user.password, str(bodyData['Password'])) :
                 login_user(user)
                 json_data = []
-                content = {"Id": str(user.tid), "FirstName": str(user.firstName), "LastName": str(user.lastName), "email" : user.email, "Role" : str(user.role)}
+                content = {"Id": str(user.tid), "FirstName": str(user.firstName), "LastName": str(user.lastName), "email": user.email, "Role": str(user.role), "DateBirth": str(user.DateBirth), "PlaceBirth": str(user.PlaceBirth), "CountryCodeP": str(user.CountryCodeP), "PhoneNumber": str(user.PhoneNumber), "PostalAddress": str(user.PostalAddress)}
                 json_data.append(content)
                 return jsonify(json_data)
             else:
@@ -58,9 +58,9 @@ class mainController:
         elif len(password1) < 8 or len(password1) > 15:
             return Response("Password must be at least 8 characters and no more of 15 characters.", status=400)
         elif not id_number or not last_name or not date_of_birth or not place_of_birth or not phone_number or not countryP or not postal_address:
-            return Response("Information Incomplete", status=400)
+            return Response("Information Incomplete.", status=400)
         elif image.filename == '' :
-            return Response("Please provide a image of your ID", status=400)   
+            return Response("Please provide a image of your ID.", status=400)   
         else:
             filename = secure_filename(image.filename)
             new_user = dbManager.createUser(id_number, str(email), generate_password_hash(password1, method='sha256'),first_name, last_name, date_of_birth, countryP, place_of_birth, phone_number, postal_address, filename)
@@ -73,26 +73,28 @@ class mainController:
                 send_email(email, subject, html)
                 return Response("A confirmation email has been sent via email.", status=200)
             else:
-                return Response("ERR: Error with DB in the creation of the user, try later", status=500)
+                return Response("ERR: Error with DB in the creation of the user, try later.", status=500)
     
     @staticmethod
     def confirmEmail(token):
         global urlS
         try:
-            emailU = confirm_token(token,3600)
+            emailU = confirm_token(token, 3600)
+            if emailU != False :
+                user = dbManager.getUserInfo(emailU.lower())
+                if user :
+                    return render_template('LoginM.html', message = "Account already confirmed. Please login.", urlS = str(urlS))
+                else:
+                    result = dbManager.activateAccount(emailU.lower())
+                    if result == "OK":
+                        return render_template('LoginM.html', message = "You have confirmed your account. Please login.", urlS = str(urlS))
+                    else:
+                        return render_template('message.html', message="ERR: Error with DB in the activation of the account, try later.", urlS=str(urlS))
+            else:
+                return render_template('message.html', message="The confirmation link is invalid.", urlS = str(urlS))
         except:
             return render_template('message.html', message="The confirmation link is invalid or has expired.", urlS = str(urlS))
             
-        user = dbManager.getUserInfo(emailU.lower())
-        if user :
-            return render_template('message.html', message = "Account already confirmed. Please login.", urlS = str(urlS))
-        else:
-            result = dbManager.activateAccount(emailU.lower())
-            if result == "OK":
-                return render_template('message.html', message = "You have confirmed your account. Please login", urlS = str(urlS))
-            else:
-                return render_template('message.html', message = "ERR: Error with DB in the activation of the account, try later", urlS = str(urlS))
-
     @staticmethod
     def updateTestament(request):
         global urlS
@@ -116,7 +118,7 @@ class mainController:
             user = dbManager.checkUserE("", id_testator)
             if user :
                 if id_testator == id_number_E : 
-                    return Response("The testator and the executor cannot be the same person", status=400)
+                    return Response("The testator and the executor cannot be the same person.", status=400)
                 else:
                     try :
                         #validate the existence of the Executor
@@ -124,13 +126,13 @@ class mainController:
                         if executor :
                             executorStatus = executor[0][2]
                             if executor[0][1] != email_E.lower() or str(executor[0][0]) != id_number_E : 
-                                return Response("Your Executor already exist in the system but it has a different email or identification number, contact support service to solve the inconsistency", status=400)
+                                return Response("Your Executor already exist in the system but has a different email or identification number, contact support service to solve the inconsistency.", status=400)
                             if executor[0][2] == "PENDENT":
                                 sentEmail = 1
                         else :
                             new_Executor = dbManager.createExecutor(id_number_E,first_name_E,last_name_E, email_E, postal_address_E,countryP_E,phone_number_E)
                             if new_Executor != "OK" :
-                                return Response("ERR: Error in DB at the creation of executor data, try later", status=500)
+                                return Response("ERR: Error in DB at the creation of executor data, try later.", status=500)
                             else: 
                                 sentEmail = 1
             
@@ -157,7 +159,7 @@ class mainController:
                         p = response.json()
                         hashI = p['Hash']
                         
-                        #blockinformation: Id Testator  + First 50 charactects of the base64 string + hash256 of the testament + '.' + infurahash + '.' previus hash
+                        #blockinformation: Id Testator  +  '*.*' + First 50 characters of the base64 string +  '*.*' +  hash256 of the testament +  '*.*' + infurahash +  '*.*' + hash of the previous testament.
                         sha256hash = hashlib.sha256(file_read).hexdigest()
                         nextHash = ""
                         if hashT == "":
@@ -297,10 +299,10 @@ class mainController:
         if requestData:
             file = open(os.path.join(UPLOADS_PATH,"Request", requestData[0][1]), 'rb')
             file_read = file.read()
-            IdExecutorP = base64.encodebytes(file_read)
+            IdExecutorP = base64.b64encode(file_read)
             file = open(os.path.join(UPLOADS_PATH,"Request", requestData[0][2]), 'rb')
             file_read = file.read()
-            DeathCertificate = base64.encodebytes(file_read)
+            DeathCertificate = base64.b64encode(file_read)
             json_data = []
             content = {"IdRequest": requestData[0][0], "IdExecutorN": requestData[0][1],"IdExecutorP": str(IdExecutorP), "DeathCertificateN": requestData[0][2], "DeathCertificate": str(DeathCertificate), "DateCreation" : requestData[0][4]}
             json_data.append(content)
@@ -358,7 +360,7 @@ class mainController:
         
         if IdTestator != False :
             testament = dbManager.getTestamentMetadata(IdTestator)
-            if testament :
+            if testament and testament[0][2]!= "RELEASED":
                 hashB = testament[0][1]
                 data = Additional.buildTestament(hashB)
                 typeV = str(type(data))
@@ -371,25 +373,25 @@ class mainController:
                             updateRequest = dbManager.updateRequestStatus(IdTestator, "PROCESSED")
                             if updateRequest == "OK" :
                                 ## Sent link to qry   the testament - Sent an email with the testament
-                                full_name = executor[0][1] + executor[0][2]
+                                full_name = executor[0][1] + ' ' + executor[0][2]
                                 token = generate_confirmation_token(hashB)
                                 confirm_url = url_for('routes.getTestamentLink', token=token, _external=True)
-                                html = render_template('Release.html', confirm_url = confirm_url, full_name = full_name, urlS = str(urlS))
+                                html = render_template('Release.html', confirm_url = confirm_url, full_name = full_name, urlS = str(urlS), hash = hashB)
                                 subject = "Testament Release"
                                 hashFile = str(hashB) + ".PDF"
                                 testamentA = os.path.join(UPLOADS_PATH, "temporal", hashFile)
                                 send_email(str(executor[0][3]), subject, html, testamentA)
-                                return render_template('message.html', message = "Testament release was successfull. Please check your email", urlS = str(urlS))
+                                return render_template('message.html', message = "Testament release was successful. Please check your email.", urlS = str(urlS))
                             else :
-                                return render_template('message.html', message = "ERR: Error in DB in the update of the request try later or contact BloTs support", urlS = str(urlS))
+                                return render_template('message.html', message = "ERR: Error in DB in the update of the request try later or contact BloTs support.", urlS = str(urlS))
                         else :
-                            return render_template('message.html', message = "ERR: Error in DB in the update of the testament try later or contact BloTs support", urlS = str(urlS))
+                            return render_template('message.html', message = "ERR: Error in DB in the update of the testament try later or contact BloTs support.", urlS = str(urlS))
                     else: 
-                        return render_template('message.html', message = "ERR: Executor information not found", urlS = str(urlS))
+                        return render_template('message.html', message = "ERR: Executor information not found.", urlS = str(urlS))
                 else :
                     return Response(data, status = 500)
             else:
-                return render_template('message.html', message = "Testament does not exist in the system, contact support", urlS = str(urlS))
+                return render_template('message.html', message = "There is not testament in the system ready to release, contact support.", urlS = str(urlS))
         else:
              return render_template('message.html', message = "The confirmation link is invalid.", urlS = str(urlS))
 
@@ -424,7 +426,7 @@ class mainController:
             json_data.append(content)
             return jsonify(json_data)
         else :
-            return Response("The user does not have wills", status=400)
+            return Response("The user does not have wills.", status=400)
 
 class Additional:
 

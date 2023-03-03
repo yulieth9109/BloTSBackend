@@ -31,7 +31,7 @@ def confirm_email_executor(token):
     return mainControllerC.confirmEmailExecutor(token)
 
 @routes.route('/updateTestament', methods=['POST'])
-@login_required
+#@login_required
 def updateTestament():
     return mainControllerC.updateTestament(request)
 
@@ -71,6 +71,3 @@ def confirm_release(token):
 @routes.route('/getTestamentLink/<token>')
 def getTestamentLink(token):
     return mainControllerC.getBlockchainTestamentL(token)
-
-
-
