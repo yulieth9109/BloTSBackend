@@ -128,7 +128,7 @@ class dbManager:
     
     @staticmethod
     def getRequestInfo(IdRequest) :
-        qry = "SELECT `IdRequest`, `IdExecutorP`, `DeathCertificate`,`Status`, DATE_FORMAT(DateCreation, '%d/%m/%Y %H:%i') FROM `testament_manager`.`request` WHERE IdRequest = '"+ IdRequest + "'"
+        qry = "SELECT `IdRequest`, `IdExecutorP`, `DeathCertificate`,`Status`, DATE_FORMAT(DateCreation, '%d/%m/%Y %H:%i') FROM `testament_manager`.`request` WHERE IdRequest = '"+ IdRequest + "' AND Status='PENDENT'"
         result = ConexionDB.executeQry(qry,"QRY")
         return result
     

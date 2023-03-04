@@ -289,7 +289,7 @@ class mainController:
                 json_data.append(content)
             return jsonify(json_data)
         else:
-            return Response("There are not pendent request", status = 200)
+            return Response("There are not pendent request", status = 400)
 
     @staticmethod
     def getRequestInfo(request):
@@ -308,7 +308,7 @@ class mainController:
             json_data.append(content)
             return jsonify(json_data)
         else :
-            return Response("The request does not exist in the system", status = 400)
+            return Response("The request does not exist in the system, o its status is not PENDENT.", status = 400)
       
     @staticmethod
     def updateRequest(request):
@@ -319,36 +319,42 @@ class mainController:
         IdExecutor = str(bodyData['idExecutor'])
         IdTestator = str(bodyData['idTestator'])
         comments = str(bodyData['comments'])
-        
-        if str(status) == "APPROVED" :
-            executor = dbManager.getExecutor(IdExecutor)
-            if executor :
-                TestamentData = dbManager.validateTestament(IdExecutor, IdTestator)
-                if TestamentData :
-                    update_request = dbManager.updateRequest(str(requestData[0][0]), "DOCUMENTS VALIDATED - APPROVED", comments, IdTestator)
-                    if update_request == "OK" : 
-                        token = generate_confirmation_token(IdTestator)
-                        confirm_url = url_for('routes.confirm_release', token=token, _external=True)
-                        full_name = executor[0][1] + executor[0][2]
-                        testator_fullname = TestamentData[0][4] + " " + TestamentData[0][5]
-                        html = render_template('ReleaseConfirmation.html', confirm_url = confirm_url, full_name = full_name, testator_fullname = testator_fullname, urlS = str(urlS))
-                        subject = "Confirmation Required"
-                        send_email(executor[0][3], subject, html)
-                        return Response("Request is approved, we sent an email to the executor for confirmation", status = 200)
+
+        if requestData:
+            if str(status) == "APPROVED" :
+                executor = dbManager.getExecutor(IdExecutor)
+                if executor :
+                    TestamentData = dbManager.validateTestament(IdExecutor, IdTestator)
+                    if TestamentData :
+                        update_request = dbManager.updateRequest(str(requestData[0][0]), "DOCUMENTS VALIDATED - APPROVED", comments, IdTestator)
+                        if update_request == "OK" : 
+                            token = generate_confirmation_token(IdTestator)
+                            confirm_url = url_for('routes.confirm_release', token=token, _external=True)
+                            full_name = executor[0][1] + executor[0][2]
+                            testator_fullname = TestamentData[0][4] + " " + TestamentData[0][5]
+                            html = render_template('ReleaseConfirmation.html', confirm_url = confirm_url, full_name = full_name, testator_fullname = testator_fullname, urlS = str(urlS))
+                            subject = "Confirmation Required"
+                            send_email(executor[0][3], subject, html)
+                            return Response("Request is approved, we sent an email to the executor for confirmation.", status = 200)
+                        else :
+                            return Response("ERR: Error in DB in the update of the request, try later.", status = 500)
                     else :
-                        return Response("ERR: Error in DB in the update of the request, try later", status = 500)
+                        return Response("There is not a valid testament in the system to release.", status = 400)
                 else :
-                    return Response("There is not a valid testament in the system to release", status = 400)
+                    return Response("Executor does not exist in the system or his/her status is not valid.", status = 400)
+            elif str(status) == "DECLINED" :
+                update_request = dbManager.updateRequest(str(requestData[0][0]), status, comments)
+                if update_request == "OK" : 
+                    return Response("Request is declined", status = 200)
+                else :
+                    return Response("ERR: Error in DB in the update of the request, try later.", status = 500) 
             else :
-                return Response("Executor does not exist in the system or his/her status is not valid ", status = 400)
-        elif str(status) == "DECLINED" :
-            update_request = dbManager.updateRequest(str(requestData[0][0]), status, comments)
-            if update_request == "OK" : 
-                return Response("Request is declined", status = 200)
-            else :
-               return Response("ERR: Error in DB in the update of the request, try later", status = 500) 
+                return Response("To update the request provide a valid status.", status = 400)
         else :
-            return Response("To update the request provide a valid status", status = 400)
+            return Response("This request has not a pendent status.", status = 400)
+
+        
+        
 
     @staticmethod
     def confirmRelease(token):
@@ -469,5 +475,3 @@ class responseD ():
   def __init__(self, file, nextHash):
     self.file = file
     self.nextHash = nextHash  
-
-        
