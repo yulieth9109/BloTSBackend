@@ -1,0 +1,25 @@
+{
+    "database": {
+      "host": "localhost",
+      "user": "root",
+      "password":"prueba123",
+      "database": "testament_manager"
+    },
+    "mailLogin": {
+      "user": "blots.contact@gmail.com",
+      "password":""
+    },
+    "infura" :{
+      "projectId": "2M0D8qxDm7Dyt8XMGb7zivpl1Gf",
+      "projectSecret": "013b57bdacb41068c7ebd687239f9047",
+      "endpoint": "https://ipfs.infura.io:5001"
+    },
+    "Blockchain" : {
+      "urlB" : "https://eth-goerli.g.alchemy.com/v2/W1xVu0bzVmV3d-MIOYVtAt-YtrezhCBj",
+      "contractAddress" : "0x4b2673F37eAc2CdC98d2847421B14EDF23d0751E",
+      "walletAddress" : "0x39Cdd30693c463951940996C8C2F46d01bf531ba",
+      "walletKey" : "",
+      "chainID" : "5"
+    }
+  }
+  
